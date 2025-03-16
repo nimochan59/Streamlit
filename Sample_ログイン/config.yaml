@@ -1,0 +1,10 @@
+cookie:
+  expiry_days: 1
+  key: some_signature_key
+  name: some_cookie_name
+credentials:
+  usernames:
+    '001':
+      email: xxx@example.com
+      name: lcb-tft
+      password: $
