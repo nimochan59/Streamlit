@@ -1,0 +1,24 @@
+cookie:
+  expiry_days: 30
+  key: some_signature_key
+  name: some_cookie_name
+credentials:
+  usernames:
+    user1:
+      email: tyamada@gmail.com
+      failed_login_attempts: 0
+      logged_in: False
+      name: Taro Yamada
+      password: abc
+      roles:
+      - admin
+      - editor
+      - viewer
+    user2:
+      email: hsuzuki@gmail.com
+      failed_login_attempts: 0
+      logged_in: False
+      name: Suzuki Hanako
+      password: def
+      roles:
+      - viewer
