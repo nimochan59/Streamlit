@@ -5,7 +5,7 @@ import yaml
 from yaml.loader import SafeLoader
 
 ## ユーザー設定読み込み
-yaml_path = "config.yaml"
+yaml_path = "/mount/src/streamlit/Sample_ログイン/config.yaml"
 
 with open(yaml_path) as file:
     config = yaml.load(file, Loader=SafeLoader)
