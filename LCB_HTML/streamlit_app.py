@@ -1,5 +1,6 @@
 import streamlit as st
 import streamlit_authenticator as stauth
+import streamlit.components.v1 as components
 
 import yaml
 from yaml.loader import SafeLoader
@@ -727,7 +728,12 @@ if st.session_state["authentication_status"]:
     st.write('# ログインしました!')
     
     # HTML埋め込み
-    st.markdown(HTML, unsafe_allow_html=True)
+    # st.markdown(HTML, unsafe_allow_html=True)
+    components.html(
+        HTML,
+        height=800,
+        scrolling=True,
+        )
 
 elif st.session_state["authentication_status"] is False:
     ## ログイン成功ログイン失敗
