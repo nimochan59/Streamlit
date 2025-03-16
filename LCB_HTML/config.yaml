@@ -4,7 +4,7 @@ cookie:
   name: some_cookie_name
 credentials:
   usernames:
-    'USER001':
+    'user001':
       email: xxx@example.com
       name: lcb-tft
       password: lcb-tft

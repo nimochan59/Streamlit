@@ -725,7 +725,6 @@ if st.session_state["authentication_status"]:
         st.markdown(f'## Welcome *{st.session_state["name"]}*')
         authenticator.logout('Logout', 'sidebar')
         st.divider()
-    st.write('# ログインしました!')
     
     # HTML埋め込み
     # st.markdown(HTML, unsafe_allow_html=True)
