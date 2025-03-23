@@ -26,119 +26,269 @@ HTML = """
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>電気自動車 旅程プラン</title>
+  <title id="pageTitle">{{pageTitle}}</title>
   <style>
-    /* リセットCSSと基本スタイル (前回のコードから変更なし) */
+    /* CSSは変更ありません。元のCSSをそのまま使用します */
+    :root {
+      --primary-color: #34a853;
+      --primary-light: #dbf5e0;
+      --secondary-color: #4285f4;
+      --accent-color: #ea4335;
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --text-tertiary: #80868b;
+      --border-color: #dadce0;
+      --background-light: #f8f9fa;
+      --shadow-sm: 0 1px 2px rgba(60, 64, 67, 0.1);
+      --shadow-md: 0 2px 6px rgba(60, 64, 67, 0.15);
+      --shadow-lg: 0 4px 12px rgba(60, 64, 67, 0.2);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 16px;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
 
     body {
-      background-color: #f5f5f5;
-      color: #333;
+      background-color: var(--background-light);
+      color: var(--text-primary);
       line-height: 1.6;
-      padding: 20px; /* body padding を追加 */
+      padding: var(--spacing-md);
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
-    /* ヘッダー (ステータスバー、ナビゲーションバー) (前回のコードから変更なし) */
-    .status-bar, .nav-bar, .tab-container, .transport-selector, .cost-info {
+    /* ヘッダーセクション */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
       background-color: white;
-      padding: 10px 15px;
-      margin-bottom: 10px;
     }
 
-    .status-bar, .nav-bar {
+    .status-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: 14px;
+      color: var(--text-secondary);
+      background-color: white;
     }
 
-    .left-status {
-      font-weight: bold;
-      font-size: 18px;
-    }
-
-    .right-status {
+    .battery-status {
       display: flex;
-      gap: 10px;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .battery-icon {
+      position: relative;
+      width: 18px;
+      height: 10px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+    }
+
+    .battery-icon::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: calc(45% - 4px);
+      height: calc(100% - 4px);
+      background-color: var(--accent-color);
+      border-radius: 1px;
+    }
+
+    .battery-icon::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 6px;
+      background-color: currentColor;
+      top: 2px;
+      right: -3px;
+      border-radius: 0 1px 1px 0;
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      background-color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
     }
 
     .back-button {
-      font-size: 24px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: rgba(0, 0, 0, 0.05);
     }
 
     .actions {
       display: flex;
-      gap: 20px;
+      gap: var(--spacing-md);
     }
 
-    .actions span {
+    .action-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
 
-    /* タブコンテナ (前回のコードから変更なし) */
+    .action-button:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    /* タブナビゲーション */
     .tab-container {
       display: flex;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border-color);
+      background-color: white;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .tab-container::-webkit-scrollbar {
+      display: none;
     }
 
     .tab {
       flex: 1;
+      min-width: 80px;
       text-align: center;
-      padding: 10px 0;
+      padding: var(--spacing-md) var(--spacing-sm);
       border-bottom: 3px solid transparent;
       cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
     }
 
     .tab.active {
-      border-bottom: 3px solid #3b82f6;
-      color: #3b82f6;
+      border-bottom: 3px solid var(--primary-color);
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .tab:not(.active):hover {
+      background-color: rgba(0, 0, 0, 0.02);
     }
 
     .date {
       font-size: 16px;
+      margin-bottom: 2px;
     }
 
     .day {
       font-size: 12px;
-      color: #666;
+      color: var(--text-tertiary);
     }
 
-    /* 交通手段セレクター (前回のコードから変更なし) */
+    /* 交通手段セレクターとコスト情報 */
+    .trip-info-container {
+      margin: var(--spacing-lg) 0;
+    }
+
     .transport-selector {
       display: flex;
       align-items: center;
-      gap: 10px;
-      background-color: #e0f7fa;
-      border-radius: 25px;
-      padding: 10px 20px;
-      margin: 15px auto;
+      justify-content: center;
+      gap: var(--spacing-md);
+      background-color: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
+      margin: 0 auto var(--spacing-md);
       max-width: 300px;
       cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid var(--border-color);
     }
 
-    /* 費用情報 (前回のコードから変更なし) */
+    .transport-selector:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .transport-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .transport-label {
+      font-weight: 500;
+      flex-grow: 1;
+    }
+
     .cost-info {
       display: flex;
       justify-content: center;
-      gap: 30px;
-      margin-bottom: 20px;
-      color: #777;
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
+      color: var(--text-secondary);
     }
 
-    /* タイムライン (前回のコードから微修正) */
+    .cost-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cost-icon {
+      font-size: 20px;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .cost-value {
+      font-weight: 500;
+    }
+
+    /* タイムライン */
     .timeline {
       display: flex;
       flex-direction: column;
-      padding-left: 20px;
-      margin-top: 20px;
+      padding-left: var(--spacing-md);
+      margin: var(--spacing-xl) auto;
       position: relative;
-      max-width: 960px; /* timeline の最大幅を設定 */
-      margin: 20px auto; /* 中央寄せ */
+      max-width: 960px;
     }
 
     .timeline-line {
@@ -146,15 +296,16 @@ HTML = """
       top: 0;
       bottom: 0;
       left: 35px;
-      width: 2px;
-      background-color: #ccc;
-      z-index: -1;
+      width: 3px;
+      background-color: var(--border-color);
+      z-index: 0;
     }
 
     .timeline-item {
       display: flex;
       align-items: flex-start;
-      margin-bottom: 20px;
+      margin-bottom: var(--spacing-xl);
+      position: relative;
     }
 
     .timeline-item:last-child {
@@ -165,165 +316,204 @@ HTML = """
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-right: 20px;
+      margin-right: var(--spacing-lg);
+      position: relative;
+      z-index: 1;
     }
 
     .time-marker {
       font-size: 14px;
-      color: #777;
-      margin-bottom: 5px;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xs);
+      font-weight: 500;
       text-align: right;
-      width: 80px; /* 時間マーカーの幅を広げました */
-    }
-
-    .point-marker {
-      width: 12px;
-      height: 12px;
-      background-color: white;
-      border: 2px solid #aaa;
-      border-radius: 50%;
-      z-index: 1;
+      width: 80px;
     }
 
     .point-number {
-      background-color: #3b82f6;
+      background-color: var(--primary-color);
       color: white;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      font-weight: bold;
-      margin-top: 5px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+      position: relative;
     }
 
-
     .timeline-details {
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      background-color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
       width: 100%;
-      display: flex; /* Flexbox を適用 */
-      justify-content: space-between; /* 左右に要素を配置 */
-      align-items: flex-start; /* 上揃え */
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid var(--border-color);
+    }
+
+    .timeline-details:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
 
     .activity-info {
-      flex: 1; /* activity-info が残り幅を占める */
-      margin-right: 15px; /* reservation-button との間隔 */
+      flex: 1;
+      margin-right: var(--spacing-lg);
     }
 
-
     .activity-label {
+      display: inline-block;
       font-size: 12px;
-      color: #888;
-      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--primary-color);
+      background-color: var(--primary-light);
+      padding: 2px var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--spacing-sm);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .activity-name {
       font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #333;
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-primary);
     }
 
     .activity-location {
       font-size: 16px;
-      color: #555;
-      margin-bottom: 0; /* activity-location の margin-bottom を 0 に */
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
     }
 
-    .activity-duration, .activity-distance, .activity-reason, .activity-notes {
+    .activity-location::before {
+      content: '📍';
+      font-size: 16px;
+    }
+
+    .activity-detail {
       font-size: 14px;
-      color: #666;
-      margin-top: 5px;
+      color: var(--text-tertiary);
+      margin-top: var(--spacing-xs);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .activity-duration::before {
+      content: '⏱️';
+    }
+
+    .activity-distance::before {
+      content: '🔄';
     }
 
     .activity-notes {
-      margin-top: 10px;
-      border-top: 1px dashed #eee;
-      padding-top: 10px;
-    }
-
-    /* reservation-button スタイル */
-    .reservation-button {
-      display: inline-block;
-      padding: 10px 15px;
-      background-color: #4caf50; /* 緑色 */
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
+      margin-top: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 1px dashed var(--border-color);
       font-size: 14px;
-      white-space: nowrap; /* ボタンテキストを折り返さない */
-      margin-top: 10px; /* 上マージンを追加 */
-    }
-
-    .reservation-button:hover {
-      background-color: #43a047; /* ホバー時、少し暗い緑 */
-    }
-
-
-    /* transport-detail, waiting-time (前回のコードから変更なし) */
-    .transport-detail, .waiting-time {
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      margin-left: 55px;
-      margin-bottom: 20px;
-      max-width: 940px; /* transport-detail の最大幅を timeline に合わせる */
-    }
-
-    .waiting-time {
-      text-align: center;
-      color: #777;
+      color: var(--text-secondary);
       font-style: italic;
     }
 
-    .transport-detail > div {
-      margin-bottom: 10px;
+    .activity-notes::before {
+      content: '💡 ';
     }
 
-    .transport-detail > div:last-child {
-      margin-bottom: 0;
+    .reservation-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background-color: var(--primary-color);
+      color: white;
+      text-decoration: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: background-color 0.2s, transform 0.2s;
+      border: none;
+      cursor: pointer;
+      min-width: 100px;
+    }
+
+    .reservation-button:hover {
+      background-color: #2c9147;
+      transform: translateY(-2px);
+    }
+
+    .reservation-button::before {
+      content: '🎟️';
+    }
+
+    /* 移動手段詳細 */
+    .transport-detail {
+      background-color: white;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin: var(--spacing-sm) 0 var(--spacing-lg) 55px;
+      border: 1px solid #e0f2ff;
+      background-color: #f0f8ff;
+      max-width: 900px;
     }
 
     .transport-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      color: #555;
+      gap: var(--spacing-md);
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: var(--spacing-sm);
     }
 
     .transport-time-cost {
       display: flex;
       justify-content: space-between;
       font-size: 14px;
-      color: #666;
+      color: var(--text-tertiary);
+      margin-bottom: var(--spacing-sm);
     }
 
     .transport-icons {
       display: flex;
       align-items: center;
-      gap: 5px;
-      color: #777;
+      gap: var(--spacing-sm);
+      color: var(--text-tertiary);
       font-size: 14px;
     }
 
+    .waiting-time {
+      text-align: center;
+      color: var(--text-tertiary);
+      font-style: italic;
+      margin: -10px 0 var(--spacing-lg) 55px;
+      font-size: 14px;
+      max-width: 900px;
+    }
 
-    /* フローティングボタン (前回のコードから変更なし) */
+    /* フローティングボタン */
     .add-button {
       position: fixed;
-      bottom: 30px;
-      right: 30px;
+      bottom: var(--spacing-xl);
+      right: var(--spacing-xl);
       width: 60px;
       height: 60px;
-      background-color: #3b82f6;
+      background-color: var(--primary-color);
       color: white;
       border-radius: 50%;
       display: flex;
@@ -331,388 +521,528 @@ HTML = """
       justify-content: center;
       font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.2s, background-color 0.2s;
+      border: none;
+      z-index: 10;
     }
 
-    /* PC表示での調整 (前回のコードから微修正) */
+    .add-button:hover {
+      transform: scale(1.1);
+      background-color: #2c9147;
+    }
+
+    /* 日付選択バッジ */
+    .date-badge {
+      position: fixed;
+      bottom: var(--spacing-xl);
+      left: var(--spacing-xl);
+      background-color: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-sm) var(--spacing-md);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 500;
+      z-index: 10;
+      border: 1px solid var(--border-color);
+    }
+
+    .date-badge-text {
+      color: var(--text-primary);
+    }
+
+    .date-badge-day {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    /* EV情報バッジ */
+    .ev-status {
+      position: fixed;
+      bottom: calc(var(--spacing-xl) + 60px);
+      right: var(--spacing-xl);
+      background-color: white;
+      border-radius: var(--radius-md);
+      padding: var(--spacing-sm) var(--spacing-md);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-xs);
+      z-index: 9;
+      border: 1px solid var(--border-color);
+    }
+
+    .battery-level {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+
+    .range-info {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    /* PC表示での調整 */
     @media screen and (min-width: 768px) {
       body {
-        padding: 30px; /* body padding を大きく */
-        max-width: 1200px; /* 最大幅を広げる */
+        padding: var(--spacing-xl);
+        max-width: 1200px;
         margin: 0 auto;
       }
 
-      .status-bar, .nav-bar, .tab-container, .transport-selector, .cost-info {
-        padding: 15px 20px;
-        margin-bottom: 15px;
+      .app-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: var(--spacing-xl);
+      }
+
+      .sidebar {
+        position: sticky;
+        top: var(--spacing-xl);
+        height: calc(100vh - 2 * var(--spacing-xl));
+        background-color: white;
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .trip-info-container {
+        margin-top: 0;
       }
 
       .timeline {
-        padding-left: 30px;
-        max-width: 1180px; /* timeline の最大幅を body に合わせる */
+        padding-left: var(--spacing-xl);
       }
 
       .time-marker {
         font-size: 16px;
-        width: 100px; /* 時間マーカーの幅を広げました */
-      }
-
-      .point-marker {
-        width: 14px;
-        height: 14px;
+        width: 100px;
       }
 
       .point-number {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
       }
 
       .timeline-details {
-        padding: 20px;
-        max-width: 1000px; /* timeline-details の最大幅を広げる */
+        padding: var(--spacing-xl);
       }
 
       .transport-detail, .waiting-time {
-         padding: 20px;
-         margin-left: 75px;
-         max-width: 980px; /* transport-detail の最大幅を timeline-details に合わせる */
+        margin-left: 75px;
       }
 
       .add-button {
         width: 70px;
         height: 70px;
-        bottom: 40px;
-        right: 40px;
       }
 
       .reservation-button {
-        font-size: 16px; /* PC表示で予約ボタンのフォントサイズを大きく */
-        padding: 12px 20px; /* PC表示で予約ボタンの padding を大きく */
+        font-size: 16px;
+        padding: var(--spacing-md) var(--spacing-lg);
+      }
+
+      .tab {
+        flex: none;
+        padding: var(--spacing-md) var(--spacing-lg);
+      }
+
+      /* サイドメニュー表示（PCのみ） */
+      .overview-section {
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: var(--spacing-md);
+        color: var(--text-primary);
+      }
+
+      .trip-overview {
+        background-color: var(--primary-light);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .trip-title {
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .trip-date {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .trip-summary {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .summary-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .summary-value {
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .summary-label {
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+
+      .battery-status-card {
+        background: linear-gradient(135deg, #34a853, #4285f4);
+        color: white;
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .battery-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .battery-title {
+        font-weight: 600;
+      }
+
+      .battery-percentage {
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .battery-bar {
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .battery-fill {
+        height: 100%;
+        width: 45%;
+        background-color: white;
+        border-radius: 4px;
+      }
+
+      .battery-range {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+      }
+
+      .charging-stations {
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .station-item {
+        display: flex;
+        justify-content: space-between;
+        padding: var(--spacing-sm) 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .station-info {
+        flex: 1;
+      }
+
+      .station-name {
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .station-distance {
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+
+      .station-status {
+        font-size: 12px;
+        color: var(--primary-color);
+        background-color: var(--primary-light);
+        padding: 2px var(--spacing-sm);
+        border-radius: var(--radius-sm);
       }
     }
   </style>
 </head>
 <body>
-  <div class="status-bar">
-    <div class="left-status">10:40 ◀</div>
-    <div class="right-status">
-      <span>●●● ≡</span>
-      <span>📶</span>
-      <span>🔋45%</span>
-    </div>
-  </div>
-
-  <div class="nav-bar">
-    <div class="back-button">←</div>
-    <div class="actions">
-      <span>❓</span>
-      <span>👤+</span>
-      <span>📊</span>
-      <span>⋮</span>
-    </div>
-  </div>
-
-  <div class="tab-container">
-    <div class="tab">
-      <div>📅</div>
-      <div class="day">プラン</div>
-    </div>
-    <div class="tab active">
-      <div class="date">3/9</div>
-      <div class="day">日</div>
-    </div>
-    <div class="tab">
-      <div class="date">3/10</div>
-      <div class="day">月</div>
-    </div>
-  </div>
-
-  <div class="transport-selector">
-    <span>⚡️</span>
-    <span>電気自動車</span>
-    <span>▼</span>
-  </div>
-
-  <div class="cost-info">
-    <div>🚶 ¥1,500</div>
-    <div>充電 ¥500</div>
-  </div>
-
-  <div class="timeline" id="timeline-container">
-    <div class="timeline-line"></div>
-    <!-- 旅程プランがここに動的に生成されます -->
-  </div>
-
-  <div class="add-button">
-    <span>📍+</span>
+  <div class="app-container" id="appContainer">
+    <!-- コンテンツはJavaScriptで生成されます -->
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      renderItinerary(dummyItineraryData); // ダミーデータで初期表示
+    const templateData = {
+      pageTitle: "電気自動車 箱根旅行プラン",
+      tripTitle: "箱根温泉旅行",
+      tripDate: "2025年3月9日（日）- 3月10日（月）",
+      tripSummary: {
+        distance: "80km",
+        chargeCount: 2,
+        chargeCost: "2,000"
+      },
+      batteryStatus: {
+        percentage: 45,
+        remainingRange: 112,
+        rangeToCharge: 40
+      },
+      chargingStations: [
+        { name: "海老名SA 充電ステーション", distance: "3km先 / 11:00到着予定", status: "利用可能" },
+        { name: "箱根町観光案内所 充電スポット", distance: "28km先", status: "混雑中" },
+        { name: "箱根ホテル 充電スポット", distance: "40km先", status: "予約済み" }
+      ],
+      activeDate: { date: "3/9", dayOfWeek: "日" },
+      date2: { date: "3/10", dayOfWeek: "月" },
+      date3: { date: "3/11", dayOfWeek: "火" },
+      date4: { date: "3/12", dayOfWeek: "水" },
+      timelineItems: [
+        {
+          time: "10:00",
+          activityLabel: "出発",
+          activityName: "自宅を出発",
+          activityLocation: "自宅",
+          duration: "0分",
+          distance: "0km",
+          actionButtonText: "AC起動"
+        },
+        {
+          time: "11:00",
+          activityLabel: "充電",
+          activityName: "急速充電",
+          activityLocation: "海老名SA(下り)充電ステーション",
+          duration: "30分",
+          distance: "約50km",
+          reservationButtonText: "充電器予約",
+          reservationUrl: "#" // 予約URLをAI生成情報から取得
+        },
+        {
+          time: "12:00",
+          activityLabel: "食事",
+          activityName: "レストラン「お食事処大和」",
+          activityLocation: "箱根周辺",
+          duration: "30分",
+          distance: "", // 距離はAI生成情報から取得
+          reservationButtonText: "レストラン予約",
+          reservationUrl: "#" // 予約URLをAI生成情報から取得
+        },
+        {
+          time: "12:30",
+          activityLabel: "レジャー",
+          activityName: "仙石原 すすき草原",
+          activityLocation: "仙石原",
+          duration: "1時間30分",
+          distance: "" // 距離はAI生成情報から取得
+        },
+        {
+          time: "14:00",
+          activityLabel: "レジャー",
+          activityName: "箱根ガラスの森美術館",
+          activityLocation: "箱根ガラスの森美術館",
+          duration: "2時間",
+          distance: "", // 距離はAI生成情報から取得
+          reservationButtonText: "予約",
+          reservationUrl: "https://www.hakone-garasunomori.jp/"
+        },
+        {
+          time: "16:30",
+          activityLabel: "ホテル",
+          activityName: "ホテル天成園チェックイン",
+          activityLocation: "ホテル内",
+          duration: "30分",
+          distance: "", // 距離はAI生成情報から取得
+          reservationButtonText: "ホテル予約",
+          reservationUrl: "#" // 予約URLをAI生成情報から取得
+        },
+        {
+          time: "17:00",
+          activityLabel: "休憩",
+          activityName: "温泉「天空大露天風呂」",
+          activityLocation: "ホテル内",
+          duration: "1時間",
+          distance: "" // 距離はAI生成情報から取得
+        },
+        {
+          time: "18:00",
+          activityLabel: "夕食",
+          activityName: "レストラン「瀧見亭」",
+          activityLocation: "ホテル内",
+          duration: "2時間",
+          distance: "", // 距離はAI生成情報から取得
+          reservationButtonText: "レストラン予約",
+          reservationUrl: "https://www.hakone-hotel.jp/restaurant/"
+        }
+      ],
+      evStatus: {
+        batteryLevel: 45,
+        remainingRange: 112
+      }
+    };
+
+    function renderHTML(data) {
+      return `
+        <!-- サイドバー (PCのみ表示) -->
+        <aside class="sidebar" id="sidebar">
+          <section class="overview-section">
+            <h2 class="section-title">旅程概要</h2>
+            <div class="trip-overview">
+              <h3 class="trip-title">${data.tripTitle}</h3>
+              <div class="trip-date">${data.tripDate}</div>
+              <div class="trip-summary">
+                <div class="summary-item">
+                  <div class="summary-value">${data.tripSummary.distance}</div>
+                  <div class="summary-label">走行距離</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-value">${data.tripSummary.chargeCount}回</div>
+                  <div class="summary-label">充電</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-value">¥${data.tripSummary.chargeCost}</div>
+                  <div class="summary-label">充電費用</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="battery-status-card">
+              <div class="battery-header">
+                <div class="battery-title">バッテリー残量</div>
+                <div class="battery-percentage">${data.batteryStatus.percentage}%</div>
+              </div>
+              <div class="battery-bar">
+                <div class="battery-fill" style="width: ${data.batteryStatus.percentage}%;"></div>
+              </div>
+              <div class="battery-range">
+                <span>残り ${data.batteryStatus.remainingRange}km</span>
+                <span>次の充電まで ${data.batteryStatus.rangeToCharge}km</span>
+              </div>
+            </div>
+
+            <section class="charging-stations">
+              <h3 class="section-title">近くの充電スポット</h3>
+              ${data.chargingStations.map(station => `
+              <div class="station-item">
+                <div class="station-info">
+                  <div class="station-name">${station.name}</div>
+                  <div class="station-distance">${station.distance}</div>
+                </div>
+                <div class="station-status">${station.status}</div>
+              </div>
+              `).join('')}
+            </section>
+          </section>
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+          <header class="app-header">
+            <div class="nav-bar">
+              <button class="back-button">←</button>
+              <h1 class="page-title">${data.pageTitle}</h1>
+              <div class="actions">
+                <button class="action-button">👤</button>
+                <button class="action-button">⋮</button>
+              </div>
+            </div>
+
+            <nav class="tab-container">
+              <div class="tab">
+                <div>📅</div>
+                <div class="day">プラン</div>
+              </div>
+              <div class="tab active">
+                <div class="date">${data.activeDate.date}</div>
+                <div class="day">${data.activeDate.dayOfWeek}</div>
+              </div>
+              <div class="tab">
+                <div class="date">${data.date2.date}</div>
+                <div class="day">${data.date2.dayOfWeek}</div>
+              </div>
+              <div class="tab">
+                <div class="date">${data.date3.date}</div>
+                <div class="day">${data.date3.dayOfWeek}</div>
+              </div>
+              <div class="tab">
+                <div class="date">${data.date4.date}</div>
+                <div class="day">${data.date4.dayOfWeek}</div>
+              </div>
+            </nav>
+          </header>
+
+          <div class="timeline" id="timeline-container">
+            <div class="timeline-line"></div>
+            ${data.timelineItems.map((item, index) => `
+            <section class="timeline-item">
+              <div class="timeline-marker-container">
+                <time class="time-marker">${item.time}</time>
+                <div class="point-marker"></div>
+                <div class="point-number">${index + 1}</div>
+              </div>
+              <div class="timeline-details">
+                <div class="activity-info">
+                  <span class="activity-label">${item.activityLabel}</span>
+                  <h2 class="activity-name">${item.activityName}</h2>
+                  <div class="activity-location">${item.activityLocation}</div>
+                  <div class="activity-detail activity-duration">所要時間: ${item.duration}</div>
+                  <div class="activity-detail activity-distance">距離: ${item.distance}</div>
+                  ${item.notes ? `<p class="activity-notes">${item.notes}</p>` : ''}
+                </div>
+                ${item.reservationUrl ? `<a class="reservation-button" href="${item.reservationUrl}" target="_blank">${item.reservationButtonText}</a>` : ''}
+                ${item.actionButtonText ? `<button class="reservation-button">${item.actionButtonText}</button>` : ''}
+              </div>
+            </section>
+            `).join('')}
+          </div>
+
+          <!-- フローティングボタン -->
+          <button class="add-button">+</button>
+
+          <!-- 固定日付バッジ -->
+          <div class="date-badge">
+            <div>📅</div>
+            <div class="date-badge-text">今日</div>
+            <div class="date-badge-day">${data.activeDate.date}</div>
+          </div>
+
+          <!-- EV情報バッジ -->
+          <div class="ev-status">
+            <div class="battery-level">
+              🔋 ${data.evStatus.batteryLevel}%
+            </div>
+            <div class="range-info">
+              ${data.evStatus.remainingRange} km走行可能
+            </div>
+          </div>
+        </main>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('pageTitle').textContent = templateData.pageTitle;
+      document.getElementById('appContainer').innerHTML = renderHTML(templateData);
     });
-
-    const dummyItineraryData = [
-      {
-        "time": "10:00",
-        "label": "出発",
-        "activity": "自宅を出発",
-        "location": "自宅",
-        "duration": "0分",
-        "distance": "0km",
-      },
-      {
-        "time": "11:00",
-        "label": "充電",
-        "activity": "急速充電",
-        "location": "海老名SA(下り)充電ステーション",
-        "duration": "30分",
-        "distance": "約50km",
-        "notes": "EXPASA海老名(下り)に到着。急速充電30分",
-        "transport_detail": {
-          "transport_type": "car",
-          "time": "約1時間",
-          "icons": ["🚗", "⚡️"]
-        }
-      },
-      {
-        "time": "11:30",
-        "label": "移動",
-        "activity": "箱根へドライブ",
-        "location": "箱根",
-        "duration": "30分",
-        "distance": "約20km",
-        "notes": "充電後、箱根に向けて出発",
-        "transport_detail": {
-          "transport_type": "car",
-          "time": "約30分",
-          "icons": ["🚗"]
-        }
-      },
-      {
-        "time": "12:00",
-        "label": "食事",
-        "activity": "EV充電対応レストラン検索",
-        "location": "箱根周辺",
-        "duration": "30分",
-        "distance": " ",
-        "notes": "ランチ場所を検索",
-        "has_reservation_button": false, // 予約ボタンなし
-      },
-      {
-        "time": "12:30",
-        "label": "食事",
-        "activity": "仙石原 すすき草原",
-        "location": "仙石原",
-        "duration": "1時間30分",
-        "distance": " ",
-        "notes": "すすきヶ原を散策",
-        "has_reservation_button": false, // 予約ボタンなし
-      },
-      {
-        "time": "14:00",
-        "label": "レジャー",
-        "activity": "箱根ガラスの森美術館",
-        "location": "箱根ガラスの森美術館",
-        "duration": "2時間",
-        "distance": " ",
-        "notes": "ヴェネチアン・グラス美術館",
-        "has_reservation_button": true, // 予約ボタンあり
-        "reservation_url": "https://www.hakone-garasunomori.jp/" // 予約URL
-      },
-      {
-        "time": "16:00",
-        "label": "移動",
-        "activity": "ホテルへ移動",
-        "location": "ホテル",
-        "duration": "30分",
-        "distance": "約10km",
-        "notes": "ホテルへ移動",
-        "transport_detail": {
-          "transport_type": "car",
-          "time": "約30分",
-          "icons": ["🚗"]
-        }
-      },
-      {
-        "time": "16:30",
-        "label": "ホテル",
-        "activity": "ホテルチェックイン",
-        "location": "箱根ホテル",
-        "duration": "30分",
-        "distance": " ",
-        "notes": "チェックイン",
-        "has_reservation_button": false, // 予約ボタンなし
-      },
-      {
-        "time": "17:00",
-        "label": "休憩",
-        "activity": "ホテルで休憩",
-        "location": "ホテル",
-        "duration": "1時間",
-        "distance": " ",
-        "notes": "温泉に入る",
-        "has_reservation_button": false, // 予約ボタンなし
-      },
-      {
-        "time": "18:00",
-        "label": "夕食",
-        "activity": "ホテル内レストラン",
-        "location": "ホテル内",
-        "duration": "2時間",
-        "distance": " ",
-        "notes": "夕食",
-        "has_reservation_button": true, // 予約ボタンあり
-        "reservation_url": "https://www.hakone-hotel.jp/restaurant/" // 予約URL
-      }
-    ];
-
-
-    function renderItinerary(itinerary) {
-      const timelineContainer = document.getElementById('timeline-container');
-      timelineContainer.innerHTML = ''; // 既存の表示をクリア
-
-      if (!itinerary || !Array.isArray(itinerary)) {
-        displayErrorMessage('無効な旅程プランデータです。');
-        return;
-      }
-
-      itinerary.forEach((item, index) => {
-        const timelineItem = document.createElement('div');
-        timelineItem.className = 'timeline-item';
-
-        // マーカーコンテナ
-        const markerContainer = document.createElement('div');
-        markerContainer.className = 'timeline-marker-container';
-
-        const timeMarker = document.createElement('div');
-        timeMarker.className = 'time-marker';
-        timeMarker.textContent = item.time;
-        markerContainer.appendChild(timeMarker);
-
-        const pointMarker = document.createElement('div');
-        pointMarker.className = 'point-marker';
-        markerContainer.appendChild(pointMarker);
-
-        const pointNumber = document.createElement('div');
-        pointNumber.className = 'point-number';
-        pointNumber.textContent = index + 1;
-        markerContainer.appendChild(pointNumber);
-
-        timelineItem.appendChild(markerContainer);
-
-        // タイムライン詳細
-        const timelineDetails = document.createElement('div');
-        timelineDetails.className = 'timeline-details';
-
-        // アクティビティ情報コンテナ
-        const activityInfo = document.createElement('div');
-        activityInfo.className = 'activity-info';
-
-        const label = document.createElement('div');
-        label.className = 'activity-label';
-        label.textContent = item.label;
-        activityInfo.appendChild(label);
-
-        const name = document.createElement('div');
-        name.className = 'activity-name';
-        name.textContent = item.activity;
-        activityInfo.appendChild(name);
-
-        const location = document.createElement('div');
-        location.className = 'activity-location';
-        location.textContent = item.location;
-        activityInfo.appendChild(location);
-
-        if (item.duration) {
-          const duration = document.createElement('div');
-          duration.className = 'activity-duration';
-          duration.textContent = `所要時間: ${item.duration}`;
-          activityInfo.appendChild(duration);
-        }
-        if (item.distance) {
-          const distance = document.createElement('div');
-          distance.className = 'activity-distance';
-          distance.textContent = `距離: ${item.distance}`;
-          activityInfo.appendChild(distance);
-        }
-        if (item.notes) {
-          const notes = document.createElement('div');
-          notes.className = 'activity-notes';
-          notes.textContent = `備考: ${item.notes}`;
-          activityInfo.appendChild(notes);
-        }
-
-        timelineDetails.appendChild(activityInfo); // activityInfo を timelineDetails に追加
-
-
-        // 予約ボタン
-        if (item.has_reservation_button) {
-          const reservationButton = document.createElement('a');
-          reservationButton.className = 'reservation-button';
-          reservationButton.href = item.reservation_url;
-          reservationButton.textContent = '予約';
-          reservationButton.target = '_blank'; // 別タブで開く
-          timelineDetails.appendChild(reservationButton); // 予約ボタンを timelineDetails に追加
-        }
-
-
-        timelineItem.appendChild(timelineDetails);
-        timelineContainer.appendChild(timelineItem);
-
-        // transport-detail (変更なし)
-        if (item.transport_detail) {
-          const transportDetailDiv = document.createElement('div');
-          transportDetailDiv.className = 'transport-detail';
-
-          const transportHeader = document.createElement('div');
-          transportHeader.className = 'transport-header';
-          transportHeader.innerHTML = `<span>🚇</span><span>公共交通機関</span><span>▼</span>`;
-          if (item.transport_detail.transport_type === 'car') {
-             transportHeader.innerHTML = `<span>🚗</span><span>自家用車</span><span>▼</span>`;
-          } else if (item.transport_detail.transport_type === 'train') {
-             transportHeader.innerHTML = `<span>🚄</span><span>電車</span><span>▼</span>`;
-          }
-
-
-          const transportTimeCost = document.createElement('div');
-          transportTimeCost.className = 'transport-time-cost';
-          transportTimeCost.innerHTML = `<div class="transport-time">${item.transport_detail.time}</div><div class="transport-cost">${item.transport_detail.cost}</div>`;
-
-          const transportIcons = document.createElement('div');
-          transportIcons.className = 'transport-icons';
-          if (item.transport_detail.icons && Array.isArray(item.transport_detail.icons)) {
-              transportIcons.innerHTML = item.transport_detail.icons.join('<span></span>');
-          } else {
-              transportIcons.innerHTML = `<span></span><span></span><span></span>`;
-          }
-
-
-          transportDetailDiv.appendChild(transportHeader);
-          transportDetailDiv.appendChild(transportTimeCost);
-          transportDetailDiv.appendChild(transportIcons);
-
-          timelineContainer.appendChild(transportDetailDiv);
-        }
-
-        // waiting-time (変更なし)
-        if (item.waiting_time) {
-          const waitingTimeDiv = document.createElement('div');
-          waitingTimeDiv.className = 'waiting-time';
-          waitingTimeDiv.textContent = item.waiting_time;
-          timelineContainer.appendChild(waitingTimeDiv);
-        }
-      });
-    }
-
-    function displayErrorMessage(message) {
-      const timelineContainer = document.getElementById('timeline-container');
-      const errorElement = document.createElement('div');
-      errorElement.style.color = 'red';
-      errorElement.textContent = message;
-      timelineContainer.appendChild(errorElement);
-    }
   </script>
 </body>
 </html>
